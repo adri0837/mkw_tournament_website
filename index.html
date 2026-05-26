@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mario Kart World Tournament | Pakorro X Duckman</title>
+    <link rel="icon" type="image/png" href="assets/icons-random/GrandPrix.png">
     <style>
         @font-face {
             font-family: 'RacersMK';
@@ -402,6 +403,44 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
+        /* ── RESPONSIVE CLASIFICACIÓN ── */
+        @media (max-width: 600px) {
+            .table-container {
+                padding: 15px 10px;
+                overflow-x: auto;
+            }
+
+            .table-container h2 {
+                font-size: 14px;
+                letter-spacing: 1px;
+                margin-bottom: 12px;
+            }
+
+            table {
+                min-width: 420px;
+            }
+
+            th {
+                font-size: 9px;
+                padding: 8px 8px;
+                letter-spacing: 1px;
+            }
+
+            td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            .standing-logo {
+                width: 26px;
+                height: 26px;
+            }
+
+            .standing-team-cell {
+                gap: 7px;
+            }
+        }
+
         .table-container h2 {
             font-size: 18px;
             letter-spacing: 3px;
@@ -576,6 +615,17 @@
         .b-slot.empty {
             border-style: dashed;
             border-color: #222;
+        }
+
+        .b-slot.trail {
+            opacity: 0.4;
+            filter: grayscale(0.85);
+            border-style: dashed;
+            border-color: #333;
+        }
+
+        .b-slot.trail .b-name {
+            color: #666;
         }
 
         .b-slot.semi {
@@ -1039,6 +1089,339 @@
             object-fit: cover;
         }
 
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.85) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* REACCIONES */
+        .reactions-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-top: 1px solid #2a2a2a;
+            flex-wrap: wrap;
+        }
+
+        .reaction-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #2a2a2a;
+            border: 1.5px solid #3a3a3a;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #aaa;
+            font-family: 'RacersMK', sans-serif;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .reaction-btn:hover {
+            border-color: #666;
+            background: #333;
+        }
+
+        .reaction-btn.active {
+            border-color: #e60012;
+            background: rgba(230, 0, 18, 0.15);
+            color: #fff;
+        }
+
+        .reaction-btn .r-count {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .reaction-btn.active .r-count {
+            color: #e60012;
+        }
+
+        .btn-open-reactions {
+            background: none;
+            border: 1.5px dashed #3a3a3a;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #555;
+        }
+
+        .btn-open-reactions:hover {
+            border-color: #e60012;
+            color: #e60012;
+        }
+
+        /* PICKER DE EMOJIS */
+        .emoji-picker-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emoji-picker-overlay.open {
+            display: flex;
+        }
+
+        .emoji-picker {
+            background: #1e1e1e;
+            border: 2px solid #444;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 300px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .emoji-opt {
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+            line-height: 1;
+        }
+
+        .emoji-opt:hover {
+            background: #2a2a2a;
+            border-color: #444;
+            transform: scale(1.2);
+        }
+
+        /* COMENTARIOS */
+        .comments-section {
+            border-top: 1px solid #2a2a2a;
+            padding: 12px;
+        }
+
+        .comments-toggle {
+            background: none;
+            border: none;
+            color: #666;
+            font-family: 'RacersMK', sans-serif;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .comments-toggle:hover {
+            color: #aaa;
+        }
+
+        .comments-body {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .comments-body.open {
+            display: block;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .comment-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: #2a2a2a;
+            border: 1.5px solid #3a3a3a;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-avatar span {
+            font-size: 8px;
+            color: #555;
+        }
+
+        .comment-bubble {
+            background: #2a2a2a;
+            border-radius: 0 10px 10px 10px;
+            padding: 8px 10px;
+            flex: 1;
+        }
+
+        .comment-author {
+            font-size: 10px;
+            color: #e60012;
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+        }
+
+        .comment-text {
+            font-size: 11px;
+            color: #ccc;
+            letter-spacing: 0.5px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .comment-date {
+            font-size: 9px;
+            color: #444;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        /* FORM DE COMENTARIO */
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid #2a2a2a;
+            padding-top: 10px;
+        }
+
+        .comment-form-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .comment-icon-pick {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: #2a2a2a;
+            border: 1.5px solid #3a3a3a;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s;
+        }
+
+        .comment-icon-pick:hover {
+            border-color: #e60012;
+        }
+
+        .comment-icon-pick img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-icon-pick span {
+            font-size: 8px;
+            color: #555;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .comment-input-name {
+            flex: 1;
+            background: #2a2a2a;
+            border: 1.5px solid #3a3a3a;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'RacersMK', sans-serif;
+            font-size: 11px;
+            padding: 7px 10px;
+            outline: none;
+            letter-spacing: 1px;
+            transition: border-color 0.2s;
+        }
+
+        .comment-input-name:focus {
+            border-color: #e60012;
+        }
+
+        .comment-input-text {
+            width: 100%;
+            background: #2a2a2a;
+            border: 1.5px solid #3a3a3a;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'RacersMK', sans-serif;
+            font-size: 11px;
+            padding: 7px 10px;
+            outline: none;
+            letter-spacing: 1px;
+            resize: none;
+            transition: border-color 0.2s;
+            line-height: 1.5;
+        }
+
+        .comment-input-text:focus {
+            border-color: #e60012;
+        }
+
+        .btn-send-comment {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #e60012, #8b0000);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'RacersMK', sans-serif;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-send-comment:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 0, 18, 0.4);
+        }
+
+        .btn-send-comment:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* EMPTY STATES */
         .empty-clips {
             grid-column: 1 / -1;
@@ -1249,6 +1632,9 @@
         <button class="tab-btn" onclick="openTab('clips', this)">
             <img src="assets/icons-random/Replays.png" alt="clips"> Clips
         </button>
+        <button class="tab-btn" onclick="openTab('reglas', this)">
+            <img src="assets/icons-random/reglas.png" alt="reglas"> Reglas
+        </button>
     </nav>
 
     <main>
@@ -1337,6 +1723,56 @@
             </div>
         </section>
 
+        <!-- ── REGLAS ───────────────────────────────────────────── -->
+        <section id="reglas" class="content-section">
+            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; max-width:900px; margin:0 auto;">
+
+                <!-- FORMATO -->
+                <div class="group-card" style="border-left-color:#e22828;">
+                    <h3><img src="assets/icons-random/formato.png" alt="formato"> Formato</h3>
+                    <div class="team-row">• El torneo se juega en Mario Kart World.</div>
+                    <div class="team-row">• Fase de grupos: cada equipo juega contra los demás de su grupo.</div>
+                    <div class="team-row">• Los 2 mejores de cada grupo avanzan a la fase de brackets.</div>
+                    <div class="team-row">• Fase de brackets: eliminación directa hasta la Final.</div>
+                </div>
+
+                <!-- PARTIDAS -->
+                <div class="group-card" style="border-left-color:#ffd700;">
+                    <h3><img src="assets/icons-random/VSrace.png" alt="partidas"> Partidas</h3>
+                    <div class="team-row">• Cada enfrentamiento sera en formato 6v6.</div>
+                    <div class="team-row">• Cada enfrentamiento sera de 12 carreras.</div>
+                    <div class="team-row">• Se utilizarán reglas de Mogi: 150 cc, Items normales, 12 jugadores.</div>
+                    <div class="team-row">• No se permiten repicks, y selección de tramos. Únicamente circuitos de 3
+                        vueltas.</div>
+                </div>
+
+                <!-- PUNTUACIÓN -->
+                <div class="group-card" style="border-left-color:#00c864;">
+                    <h3><img src="assets/icons-random/GrandPrix.png" alt="puntuacion"> Puntuación</h3>
+                    <div class="team-row">• Victoria: <strong style="color:#00c864;margin-left:4px;">3 puntos</strong>.
+                    </div>
+                    <div class="team-row">• Empate: <strong style="color:#ffd700;margin-left:4px;">1 punto</strong>.
+                    </div>
+                    <div class="team-row">• Derrota: <strong style="color:#e60012;margin-left:4px;">0 puntos</strong>.
+                    </div>
+                    <div class="team-row">• En caso de empate en puntos, desempata la diferencia de carreras ganadas.
+                    </div>
+                </div>
+
+                <!-- CONDUCTA -->
+                <div class="group-card" style="border-left-color:#bc64f7;">
+                    <h3><img src="assets/icons-random/item.png" alt="conducta"> Conducta y Situaciones</h3>
+                    <div class="team-row">• Buen ambiente ante todo — este torneo es por diversión y convivencia.</div>
+                    <div class="team-row">• Cualquier problema durante una partida se reporta a los organizadores antes
+                        de continuar.</div>
+                    <div class="team-row">• Cualquier fallo técnico o desconexión de partida debe ser reportado a los
+                        organizadores.</div>
+                    <div class="team-row">• Las decisiones de los organizadores sobre cualquier tema es definitivo.
+                    </div>
+                </div>
+
+            </div>
+        </section>
     </main>
 
     <!-- ── POPUP EQUIPO ────────────────────────────────────────── -->
@@ -1372,7 +1808,8 @@
             Desarrollado por <span class="developer-name">H3ar</span>
             <span class="discord-contact">
                 <svg class="discord-icon" viewBox="0 0 127.14 96.36" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,52.88,6.83,77.19,77.19,0,0,0,49.58,0,105.15,105.15,0,0,0,19.14,8.07C-1.64,39.15-7.23,69.69,5.08,95.52a105.74,105.74,0,0,0,32,16.14,79,79,0,0,0,6.77-11,68.61,68.61,0,0,1-10.64-5.12c.9-.66,1.8-1.34,2.65-2a75.58,75.58,0,0,0,91.24,0c.85.69,1.75,1.37,2.65,2a68.61,68.61,0,0,1-10.64,5.12,79,79,0,0,0,6.77,11,105.74,105.74,0,0,0,32-16.14C134.07,69.69,128.16,39.15,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
+                    <path
+                        d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,52.88,6.83,77.19,77.19,0,0,0,49.58,0,105.15,105.15,0,0,0,19.14,8.07C-1.64,39.15-7.23,69.69,5.08,95.52a105.74,105.74,0,0,0,32,16.14,79,79,0,0,0,6.77-11,68.61,68.61,0,0,1-10.64-5.12c.9-.66,1.8-1.34,2.65-2a75.58,75.58,0,0,0,91.24,0c.85.69,1.75,1.37,2.65,2a68.61,68.61,0,0,1-10.64,5.12,79,79,0,0,0,6.77,11,105.74,105.74,0,0,0,32-16.14C134.07,69.69,128.16,39.15,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z" />
                 </svg>
                 <span class="discord-handle">h3ars_</span>
             </span>
@@ -1550,59 +1987,67 @@
                 fetch('api/bracket/get.php')
             ]);
             const teams = await teamsRes.json();
-            const slots = await bracketRes.json();
+            const data = await bracketRes.json();
 
             const state = {};
-            slots.forEach(s => {
+            const progress = data.progress || [];
+
+            data.slots.forEach(s => {
                 const key = s.round + '-' + parseInt(s.slot_number);
                 if (s.team_id) {
                     const team = teams.find(t => t.id == s.team_id);
                     if (team) state[key] = team;
                 }
             });
+
             autoPlaceGroupTeamsView(state, teams);
-            renderBracketView(state, teams);
+
+            // Aplicar progreso
+            progress.forEach(p => {
+                const team = teams.find(t => t.id == p.team_id);
+                if (team) state[p.slot_key] = team;
+            });
+
+            renderBracketView(state, teams, progress);
         }
 
         function autoPlaceGroupTeamsView(state, teams) {
             ['A', 'B', 'C', 'D'].forEach(g => {
-                const groupTeams = teams
-                    .filter(t => t.group_name === g)
-                    .sort((a, b) => a.slot_number - b.slot_number);
-                groupTeams.forEach((team, i) => {
-                    const key = `group_${g}-${i + 1}`;
+                const groupTeams = teams.filter(t => t.group_name === g);
+                groupTeams.forEach(team => {
+                    const key = `group_${g}-${team.slot_number}`;
                     if (!state[key]) state[key] = team;
                 });
             });
         }
 
-        function renderBracketView(state, teams) {
+        function renderBracketView(state, teams, progress = []) {
             const bracket = document.getElementById('bracketView');
             bracket.innerHTML = '';
 
-            bracket.appendChild(makeViewGroupsCol('A', 'C', 'Grupos A & C', state));
+            bracket.appendChild(makeViewGroupsCol('A', 'C', 'Grupos A & C', state, progress));
             bracket.appendChild(makeViewConnCol('right', 4));
-            bracket.appendChild(makeViewWinnersCol('A', 'C', state));
+            bracket.appendChild(makeViewWinnersCol('A', 'C', state, progress));
             bracket.appendChild(makeViewConnCol('right', 2));
-            bracket.appendChild(makeViewGroupWinnerCol('A', 'C', state));
+            bracket.appendChild(makeViewGroupWinnerCol('A', 'C', state, progress));
             bracket.appendChild(makeViewConnCol('right', 1));
-            bracket.appendChild(makeViewSemiCol('left', state));
+            bracket.appendChild(makeViewSemiCol('left', state, progress));
             bracket.appendChild(makeViewSingleConn('right', 1));
-            bracket.appendChild(makeViewCenterCol(state));
+            bracket.appendChild(makeViewCenterCol(state, progress));
             bracket.appendChild(makeViewSingleConn('left', 1));
-            bracket.appendChild(makeViewSemiCol('right', state));
+            bracket.appendChild(makeViewSemiCol('right', state, progress));
             bracket.appendChild(makeViewConnCol('left', 1));
-            bracket.appendChild(makeViewGroupWinnerCol('B', 'D', state));
+            bracket.appendChild(makeViewGroupWinnerCol('B', 'D', state, progress));
             bracket.appendChild(makeViewConnCol('left', 2));
-            bracket.appendChild(makeViewWinnersCol('B', 'D', state));
+            bracket.appendChild(makeViewWinnersCol('B', 'D', state, progress));
             bracket.appendChild(makeViewConnCol('left', 4));
-            bracket.appendChild(makeViewGroupsCol('B', 'D', 'Grupos B & D', state));
+            bracket.appendChild(makeViewGroupsCol('B', 'D', 'Grupos B & D', state, progress));
         }
 
         function createViewCol(labelText) {
             const col = document.createElement('div');
             col.className = 'bracket-col';
-            
+
             const header = document.createElement('div');
             header.className = 'col-header';
             header.innerHTML = labelText ? labelText : '&nbsp;';
@@ -1615,50 +2060,86 @@
             return { col, content };
         }
 
-        function makeViewGroupsCol(g1, g2, label, state) {
+        function makeViewGroupsCol(g1, g2, label, state, progress) {
             const { col, content } = createViewCol(label);
             [g1, g2].forEach(g => {
                 for (let i = 1; i <= 4; i++) {
                     const key = `group_${g}-${i}`;
-                    content.appendChild(makeViewSlot(state[key] || null, g));
+                    content.appendChild(makeViewSlot(state[key] || null, g, false, false, false, false));
                 }
             });
             return col;
         }
 
-        function makeViewWinnersCol(g1, g2, state) {
+        function makeViewWinnersCol(g1, g2, state, progress) {
             const { col, content } = createViewCol('Ganadores');
             [g1, g2].forEach(g => {
                 for (let i = 1; i <= 2; i++) {
                     const key = `group_${g}_winner-${i}`;
-                    content.appendChild(makeViewSlot(state[key] || null, g));
+                    const team = state[key] || null;
+                    const trail = !team && progress.some(p => p.slot_key === key);
+                    const trailTeam = trail
+                        ? {
+                            name: progress.find(p => p.slot_key === key).team_name,
+                            logo_path: progress.find(p => p.slot_key === key).team_logo
+                        }
+                        : null;
+                    content.appendChild(makeViewSlot(team || trailTeam, g, false, false, false, trail));
                 }
             });
             return col;
         }
 
-        function makeViewGroupWinnerCol(g1, g2, state) {
+        function makeViewGroupWinnerCol(g1, g2, state, progress) {
             const { col, content } = createViewCol('Ganador Grupo');
             [g1, g2].forEach(g => {
                 const key = `winner_${g}-1`;
-                content.appendChild(makeViewSlot(state[key] || null, g));
+                const team = state[key] || null;
+                const trail = !team && progress.some(p => p.slot_key === key);
+                const trailTeam = trail
+                    ? {
+                        name: progress.find(p => p.slot_key === key).team_name,
+                        logo_path: progress.find(p => p.slot_key === key).team_logo
+                    }
+                    : null;
+                content.appendChild(makeViewSlot(team || trailTeam, g, false, false, false, trail));
             });
             return col;
         }
 
-        function makeViewSemiCol(side, state) {
+        function makeViewSemiCol(side, state, progress) {
             const { col, content } = createViewCol('Semifinal');
             const key = side === 'left' ? 'semi_left-1' : 'semi_right-1';
-            content.appendChild(makeViewSlot(state[key] || null, null, true));
+            const team = state[key] || null;
+            const trail = !team && progress.some(p => p.slot_key === key);
+            const trailTeam = trail
+                ? {
+                    name: progress.find(p => p.slot_key === key).team_name,
+                    logo_path: progress.find(p => p.slot_key === key).team_logo
+                }
+                : null;
+            content.appendChild(makeViewSlot(team || trailTeam, null, true, false, false, trail));
             return col;
         }
 
-        function makeViewCenterCol(state) {
+        function makeViewCenterCol(state, progress) {
             const col = document.createElement('div');
             col.className = 'bracket-col trophy-center';
 
+            const buildSlot = (key, isFinal, isThird) => {
+                const team = state[key] || null;
+                const trail = !team && progress.some(p => p.slot_key === key);
+                const trailTeam = trail
+                    ? {
+                        name: progress.find(p => p.slot_key === key).team_name,
+                        logo_path: progress.find(p => p.slot_key === key).team_logo
+                    }
+                    : null;
+                return makeViewSlot(team || trailTeam, null, false, isFinal, isThird, trail);
+            };
+
             addViewLabel(col, 'Campeón');
-            col.appendChild(makeViewSlot(state['final-1'] || null, null, false, true));
+            col.appendChild(buildSlot('final-1', true, false));
 
             const trophy = document.createElement('img');
             trophy.src = 'assets/icons-random/GrandPrix.png';
@@ -1668,18 +2149,19 @@
             col.appendChild(trophy);
 
             addViewLabel(col, 'Subcampeón');
-            col.appendChild(makeViewSlot(state['third-1'] || null, null, false, false, true));
+            col.appendChild(buildSlot('third-1', false, true));
 
             return col;
         }
 
-        function makeViewSlot(team, group = null, isSemi = false, isFinal = false, isThird = false) {
+        function makeViewSlot(team, group = null, isSemi = false, isFinal = false, isThird = false, isTrail = false) {
             const slot = document.createElement('div');
             let cls = 'b-slot';
             if (isFinal) cls += ' final-slot';
             else if (isThird) cls += ' third-slot';
             else if (isSemi) cls += ' semi';
-            if (!team) cls += ' empty';
+            if (isTrail) cls += ' trail';
+            else if (!team) cls += ' empty';
             slot.className = cls;
 
             if (group && team) {
@@ -1764,7 +2246,7 @@
                 });
 
                 return `
-                    <div class="video-card">
+                    <div class="video-card" id="vcard-${clip.id}">
                         <video controls preload="metadata">
                             <source src="${clip.file_path}" type="video/mp4">
                         </video>
@@ -1773,6 +2255,38 @@
                             <div class="video-player-name">${clip.player_name}</div>
                             <div class="video-date">${date}</div>
                         </div>
+                        <div class="reactions-bar" id="reactions-${clip.id}">
+                            <span style="font-size:10px;color:#444;letter-spacing:1px;">Cargando...</span>
+                        </div>
+                        <div class="comments-section">
+                            <button class="comments-toggle" onclick="toggleComments(${clip.id}, this)">
+                                💬 <span class="comments-count-label">Cargando...</span>
+                            </button>
+                            <div class="comments-body" id="comments-body-${clip.id}">
+                                <div class="comment-list" id="comment-list-${clip.id}"></div>
+                                <div class="comment-form">
+                                    <div class="comment-form-row">
+                                        <div class="comment-icon-pick" id="cicon-pick-${clip.id}"
+                                            onclick="openCommentIconPicker(${clip.id})"
+                                            title="Elige un personaje">
+                                            <span>ÍCONO</span>
+                                        </div>
+                                        <input class="comment-input-name"
+                                            type="text"
+                                            id="cname-${clip.id}"
+                                            placeholder="Tu nombre">
+                                    </div>
+                                    <textarea class="comment-input-text"
+                                        id="ctext-${clip.id}"
+                                        rows="2"
+                                        placeholder="Escribe un comentario..."
+                                        maxlength="500"></textarea>
+                                    <button class="btn-send-comment" onclick="submitComment(${clip.id})">
+                                        Publicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>`;
             }).join('');
 
@@ -1780,13 +2294,319 @@
             const videos = grid.querySelectorAll('video');
             videos.forEach(video => {
                 video.addEventListener('play', () => {
-                    videos.forEach(otherVideo => {
-                        if (otherVideo !== video) {
-                            otherVideo.pause();
-                        }
-                    });
+                    videos.forEach(other => { if (other !== video) other.pause(); });
                 });
             });
+
+            // Cargar reacciones de todos los clips
+            clips.forEach(clip => loadReactions(clip.id));
+            // Cargar conteo inicial de comentarios
+            clips.forEach(clip => preloadCommentCount(clip.id));
+        }
+
+        async function preloadCommentCount(clipId) {
+            const res = await fetch('api/clips/comments.php?clip_id=' + clipId);
+            const comments = await res.json();
+            const label = document.querySelector(`#vcard-${clipId} .comments-count-label`);
+            if (label) label.textContent = comments.length > 0
+                ? `Ver comentarios (${comments.length})`
+                : 'Ver comentarios';
+        }
+
+        // ── REACCIONES ─────────────────────────────────────────────────
+        let activeEmojiClipId = null;
+        let reactionQueue = Promise.resolve();
+
+        // Reacciones propias guardadas en localStorage
+        // Estructura: { "clipId_emoji": true }
+        function getMyReactions() {
+            return JSON.parse(localStorage.getItem('mk_reactions') || '{}');
+        }
+
+        function hasReacted(clipId, emoji) {
+            return !!getMyReactions()[clipId + '_' + emoji];
+        }
+
+        function saveReaction(clipId, emoji) {
+            const data = getMyReactions();
+            data[clipId + '_' + emoji] = true;
+            localStorage.setItem('mk_reactions', JSON.stringify(data));
+        }
+
+        function removeReaction(clipId, emoji) {
+            const data = getMyReactions();
+            delete data[clipId + '_' + emoji];
+            localStorage.setItem('mk_reactions', JSON.stringify(data));
+        }
+
+        async function loadReactions(clipId) {
+            const bar = document.getElementById('reactions-' + clipId);
+            if (!bar) return;
+
+            const res = await fetch('api/clips/reactions.php?clip_id=' + clipId);
+            const data = await res.json();
+
+            // "mine" se determina desde localStorage, no desde el backend
+            const mine = (data.reactions || [])
+                .map(r => r.emoji)
+                .filter(e => hasReacted(clipId, e));
+
+            renderReactionsBar(clipId, data.reactions || [], mine);
+        }
+
+        function renderReactionsBar(clipId, reactions, mine) {
+            const bar = document.getElementById('reactions-' + clipId);
+            if (!bar) return;
+
+            const activeButtons = reactions.map(r => {
+                const encoded = btoa(unescape(encodeURIComponent(r.emoji)));
+                return `
+                <button class="reaction-btn ${mine.includes(r.emoji) ? 'active' : ''}"
+                    data-clip="${clipId}" data-emoji="${encoded}"
+                    onclick="handleReactionClick(this)">
+                    ${r.emoji} <span class="r-count">${r.total}</span>
+                </button>`;
+            }).join('');
+
+            bar.innerHTML = activeButtons + `
+                <button class="btn-open-reactions" onclick="openEmojiPicker(${clipId})" title="Reaccionar">
+                    ＋
+                </button>`;
+        }
+
+        function handleReactionClick(btn) {
+            const clipId = parseInt(btn.dataset.clip);
+            const emoji = decodeURIComponent(escape(atob(btn.dataset.emoji)));
+            toggleReaction(clipId, emoji, btn);
+        }
+
+        function openEmojiPicker(clipId) {
+            activeEmojiClipId = clipId;
+            document.getElementById('emojiPickerOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.addEventListener('click', function (e) {
+            const overlay = document.getElementById('emojiPickerOverlay');
+            if (overlay && e.target === overlay) {
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
+
+        async function pickEmoji(emoji) {
+            const clipId = activeEmojiClipId;
+            document.getElementById('emojiPickerOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+            activeEmojiClipId = null;
+            if (clipId === null) return;
+            toggleReaction(clipId, emoji, null);
+        }
+
+        function toggleReaction(clipId, emoji, btn) {
+            const already = hasReacted(clipId, emoji);
+
+            // Actualizar localStorage inmediatamente
+            if (already) {
+                removeReaction(clipId, emoji);
+            } else {
+                saveReaction(clipId, emoji);
+            }
+
+            // Actualizar UI inmediatamente sin esperar al servidor
+            const bar = document.getElementById('reactions-' + clipId);
+            if (bar) {
+                const existingBtn = [...bar.querySelectorAll('.reaction-btn')].find(b => {
+                    const e = decodeURIComponent(escape(atob(b.dataset.emoji)));
+                    return e === emoji;
+                });
+
+                if (already) {
+                    // Quitar reacción
+                    if (existingBtn) {
+                        const count = parseInt(existingBtn.querySelector('.r-count').textContent) - 1;
+                        if (count <= 0) {
+                            existingBtn.remove();
+                        } else {
+                            existingBtn.querySelector('.r-count').textContent = count;
+                            existingBtn.classList.remove('active');
+                        }
+                    }
+                } else {
+                    // Agregar reacción — si ya existe el botón súmale 1, si no créalo
+                    if (existingBtn) {
+                        const count = parseInt(existingBtn.querySelector('.r-count').textContent) + 1;
+                        existingBtn.querySelector('.r-count').textContent = count;
+                        existingBtn.classList.add('active');
+                    } else {
+                        const encoded = btoa(unescape(encodeURIComponent(emoji)));
+                        const newBtn = document.createElement('button');
+                        newBtn.className = 'reaction-btn active';
+                        newBtn.dataset.clip = clipId;
+                        newBtn.dataset.emoji = encoded;
+                        newBtn.setAttribute('onclick', 'handleReactionClick(this)');
+                        newBtn.innerHTML = `${emoji} <span class="r-count">1</span>`;
+                        // Insertar antes del botón "+"
+                        const plusBtn = bar.querySelector('.btn-open-reactions');
+                        bar.insertBefore(newBtn, plusBtn);
+                    }
+                }
+            }
+
+            const method = already ? 'DELETE' : 'POST';
+            reactionQueue = reactionQueue.then(() =>
+                fetch('api/clips/reactions.php', {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clip_id: clipId, emoji })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Solo actualizar el contador del emoji afectado, no reordenar toda la barra
+                            const bar = document.getElementById('reactions-' + clipId);
+                            if (!bar) return;
+                            const btn = [...bar.querySelectorAll('.reaction-btn')].find(b => {
+                                return decodeURIComponent(escape(atob(b.dataset.emoji))) === emoji;
+                            });
+                            if (btn) {
+                                if (data.total <= 0) {
+                                    btn.remove();
+                                } else {
+                                    btn.querySelector('.r-count').textContent = data.total;
+                                }
+                            }
+                        }
+                    })
+                    .catch(e => console.error('Error al reaccionar:', e))
+            );
+        }
+
+        // ── COMENTARIOS ────────────────────────────────────────────────
+        let commentIconClipId = null;
+        const commentIcons = {}; // clipId → icono seleccionado
+
+        async function toggleComments(clipId, btn) {
+            const body = document.getElementById('comments-body-' + clipId);
+            const label = btn.querySelector('.comments-count-label');
+            const isOpen = body.classList.toggle('open');
+
+            if (isOpen) {
+                label.textContent = 'Ocultar comentarios';
+                await loadComments(clipId);
+            } else {
+
+                const count = document.getElementById('comment-list-' + clipId).children.length;
+                label.textContent = count > 0 ? `Ver comentarios (${count})` : 'Ver comentarios';
+            }
+        }
+
+        async function loadComments(clipId) {
+            const list = document.getElementById('comment-list-' + clipId);
+            list.innerHTML = '<div style="font-size:10px;color:#444;letter-spacing:1px;padding:8px 0;">Cargando...</div>';
+
+            const res = await fetch('api/clips/comments.php?clip_id=' + clipId);
+            const comments = await res.json();
+
+            // Actualizar el conteo en el botón toggle
+            const btn = document.querySelector(`#vcard-${clipId} .comments-toggle .comments-count-label`);
+            if (btn) btn.textContent = comments.length > 0
+                ? `Ocultar comentarios`
+                : 'Ocultar comentarios';
+
+            // Actualizar conteo en el label del botón toggle cuando esté cerrado
+            const toggleBtn = document.querySelector(`#vcard-${clipId} .comments-toggle`);
+            if (toggleBtn) toggleBtn.dataset.count = comments.length;
+
+            if (!comments.length) {
+                list.innerHTML = '<div style="font-size:10px;color:#444;letter-spacing:1px;padding:8px 0;">Sin comentarios aún. ¡Sé el primero!</div>';
+                return;
+            }
+
+            list.innerHTML = comments.map(c => {
+                const avatar = c.commenter_icon
+                    ? `<img src="${c.commenter_icon}" alt="avatar">`
+                    : '<span>?</span>';
+
+                const date = new Date(c.created_at).toLocaleDateString('es-MX', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+
+                return `
+            <div class="comment-item" id="comment-${c.id}">
+                <div class="comment-avatar">${avatar}</div>
+                <div class="comment-bubble">
+                    <div class="comment-author">${c.commenter_name}</div>
+                    <div class="comment-text">${c.comment_text}</div>
+                    <div class="comment-date">${date}</div>
+                </div>
+            </div>`;
+            }).join('');
+        }
+
+        async function submitComment(clipId) {
+            const nameInput = document.getElementById('cname-' + clipId);
+            const textInput = document.getElementById('ctext-' + clipId);
+            const name = nameInput.value.trim();
+            const text = textInput.value.trim();
+
+            if (!name) {
+                document.getElementById('commentErrorOverlay').classList.add('open');
+                document.body.style.overflow = 'hidden';
+                return;
+            }
+            if (!text) return;
+
+            const btn = document.querySelector(`#comments-body-${clipId} .btn-send-comment`);
+            btn.disabled = true;
+            btn.textContent = 'Publicando...';
+
+            try {
+                const res = await fetch('api/clips/comments.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        clip_id: clipId,
+                        commenter_name: name,
+                        commenter_icon: commentIcons[clipId] || '',
+                        comment_text: text
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    nameInput.value = '';
+                    textInput.value = '';
+                    commentIcons[clipId] = '';
+                    document.getElementById('cicon-pick-' + clipId).innerHTML = '<span>ÍCONO</span>';
+                    await loadComments(clipId);
+                    document.getElementById('commentNotifOverlay').classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Publicar';
+            }
+        }
+
+        // Icon picker para comentarios (reutiliza el overlay del clip upload)
+        async function openCommentIconPicker(clipId) {
+            commentIconClipId = clipId;
+            const overlay = document.getElementById('iconPickerOverlay');
+            const grid = document.getElementById('iconsGrid');
+
+            // Si los iconos no están cargados aún, cargarlos igual que openIconPicker
+            if (!grid.children.length) {
+                const res = await fetch('api/clips/icons.php');
+                const icons = await res.json();
+                grid.innerHTML = icons.map(icon => `
+                    <div class="icon-opt" onclick="pickClipIcon('${icon}')">
+                        <img src="assets/character-icons/${icon}" alt="${icon}">
+                    </div>`).join('');
+            }
+
+            overlay._commentMode = true;
+            overlay.classList.add('open');
         }
 
         // ICON PICKER para clips
@@ -1808,11 +2628,25 @@
         }
 
         function pickClipIcon(icon) {
-            selectedCharIcon = 'assets/character-icons/' + icon;
-            document.getElementById('selectedChar').value = selectedCharIcon;
-            const btn = document.getElementById('charPickBtn');
-            btn.innerHTML = `<img src="${selectedCharIcon}" alt="personaje">`;
-            document.getElementById('iconPickerOverlay').classList.remove('open');
+            const overlay = document.getElementById('iconPickerOverlay');
+            const path = 'assets/character-icons/' + icon;
+
+            if (overlay._commentMode && commentIconClipId !== null) {
+                // Modo comentario
+                commentIcons[commentIconClipId] = path;
+                const pick = document.getElementById('cicon-pick-' + commentIconClipId);
+                pick.innerHTML = `<img src="${path}" alt="personaje">`;
+                overlay._commentMode = false;
+                commentIconClipId = null;
+            } else {
+                // Modo clip upload (comportamiento original)
+                selectedCharIcon = path;
+                document.getElementById('selectedChar').value = path;
+                const btn = document.getElementById('charPickBtn');
+                btn.innerHTML = `<img src="${path}" alt="personaje">`;
+            }
+
+            overlay.classList.remove('open');
         }
 
         document.getElementById('iconPickerOverlay').addEventListener('click', function (e) {
@@ -1883,6 +2717,50 @@
         loadBracket();
         loadClips();
     </script>
+    <!-- EMOJI PICKER OVERLAY -->
+    <div class="emoji-picker-overlay" id="emojiPickerOverlay">
+        <div class="emoji-picker">
+            <span class="emoji-opt" onclick="pickEmoji('👍')">👍</span>
+            <span class="emoji-opt" onclick="pickEmoji('♥️')">♥️</span>
+            <span class="emoji-opt" onclick="pickEmoji('😂')">😂</span>
+            <span class="emoji-opt" onclick="pickEmoji('😭')">😭</span>
+            <span class="emoji-opt" onclick="pickEmoji('🔥')">🔥</span>
+            <span class="emoji-opt" onclick="pickEmoji('💀')">💀</span>
+            <span class="emoji-opt" onclick="pickEmoji('🥀')">🥀</span>
+            <span class="emoji-opt" onclick="pickEmoji('🐀')">🐀</span>
+            <span class="emoji-opt" onclick="pickEmoji('🏳️‍🌈')">🏳️‍🌈</span>
+        </div>
+    </div>
+
+    <!-- NOTIF COMENTARIO ENVIADO -->
+    <div class="notif-overlay" id="commentNotifOverlay">
+        <div class="notif-box success">
+            <span class="notif-icon">💬</span>
+            <div class="notif-title">¡Comentario Publicado!</div>
+            <div class="notif-text">Tu comentario ya es visible para todos.</div>
+            <div class="notif-actions">
+                <button class="notif-btn primary"
+                    onclick="document.getElementById('commentNotifOverlay').classList.remove('open');document.body.style.overflow='';">
+                    ¡Genial!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIF ERROR COMENTARIO (sin nombre) -->
+    <div class="notif-overlay" id="commentErrorOverlay">
+        <div class="notif-box error">
+            <span class="notif-icon">⚠️</span>
+            <div class="notif-title">Falta tu Nombre</div>
+            <div class="notif-text">Ingresa un nombre antes de publicar tu comentario.</div>
+            <div class="notif-actions">
+                <button class="notif-btn primary"
+                    onclick="document.getElementById('commentErrorOverlay').classList.remove('open');document.body.style.overflow='';">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
     <!-- NOTIFICACION -->
     <div class="notif-overlay" id="clipNotifOverlay">
         <div class="notif-box success">

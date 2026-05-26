@@ -562,6 +562,102 @@ $icons = array_filter(scandir($icons_dir), function($f) {
         }
         .msg.success { background: rgba(0,200,100,0.15); border: 1px solid #00c864; color: #00c864; }
         .msg.error   { background: rgba(230,0,18,0.15);  border: 1px solid #e60012; color: #ff4444; }
+
+        /* ── RESPONSIVE MÓVIL ── */
+        @media (max-width: 768px) {
+            .groups-grid {
+                grid-template-columns: 1fr; /* de 2 columnas a 1 */
+            }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 15px 10px; }
+            h2 { font-size: 15px; letter-spacing: 1px; }
+            .info-banner { font-size: 11px; padding: 10px 12px; }
+
+            /* Slots de equipos */
+            .slot-row {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .slot-info {
+                flex: 1;
+                min-width: 0; /* evita overflow del nombre */
+            }
+            .slot-name {
+                font-size: 12px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            /* Botones edit/delete en slot */
+            .slot-row > div:last-child {
+                width: 100%;
+                display: flex;
+                gap: 8px;
+            }
+            .btn-slot {
+                flex: 1;
+                text-align: center;
+            }
+
+            /* Modal */
+            .modal {
+                margin: 10px;
+                padding: 20px 15px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            .form-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            .form-group {
+                width: 100%;
+            }
+
+            /* Player rows dentro del modal */
+            .player-row {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .player-row input {
+                flex: 1;
+                min-width: 120px;
+            }
+            .btn-remove-player {
+                flex-shrink: 0;
+            }
+
+            /* Btn submit del modal */
+            .btn-submit {
+                width: 100%;
+            }
+
+            /* Icon picker */
+            .icon-picker {
+                margin: 15px;
+                padding: 15px;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            .icons-grid {
+                grid-template-columns: repeat(4, 1fr); /* menos columnas en móvil */
+            }
+
+            /* Notificaciones */
+            .notif-box {
+                padding: 25px 18px;
+                margin: 0 15px;
+            }
+            .notif-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .notif-btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -833,6 +929,29 @@ $icons = array_filter(scandir($icons_dir), function($f) {
             btn.textContent = 'Registrando...';
 
             try {
+                const hasProg = await checkBracketProgress();
+                if (hasProg) {
+                    btn.disabled    = false;
+                    btn.textContent = 'Registrar Equipo';
+                    showBracketWarning(async () => {
+                        await resetBracketSilently();
+                        await doSubmitTeam(formData, name, btn);
+                    });
+                    return;
+                }
+                await doSubmitTeam(formData, name, btn);
+            } catch (e) {
+                showMsg('Error de conexión', 'error');
+            } finally {
+                btn.disabled    = false;
+                btn.textContent = 'Registrar Equipo';
+            }
+        }
+
+        async function doSubmitTeam(formData, name, btn) {
+            btn.disabled    = true;
+            btn.textContent = 'Registrando...';
+            try {
                 const res  = await fetch('../api/teams/create.php', { method: 'POST', body: formData });
                 const data = await res.json();
                 if (data.success) {
@@ -848,14 +967,14 @@ $icons = array_filter(scandir($icons_dir), function($f) {
                 } else {
                     showMsg(data.error || 'Error al registrar', 'error');
                 }
-            } catch (e) {
+            } catch(e) {
                 showMsg('Error de conexión', 'error');
             } finally {
                 btn.disabled    = false;
                 btn.textContent = 'Registrar Equipo';
             }
         }
-
+        
         // ── DELETE ─────────────────────────────────────────────────
         async function deleteTeam(id) {
             const team   = teams.find(t => t.id === id);
@@ -876,31 +995,42 @@ $icons = array_filter(scandir($icons_dir), function($f) {
                         label: 'Sí, Eliminar',
                         style: 'primary',
                         action: async () => {
-                            const res  = await fetch('../api/teams/delete.php', {
-                                method:  'DELETE',
-                                headers: { 'Content-Type': 'application/json' },
-                                body:    JSON.stringify({ id })
-                            });
-                            const data = await res.json();
-                            if (data.success) {
-                                loadGroups();
-                                showNotif({
-                                    type:  'success',
-                                    icon:  '🗑️',
-                                    title: 'Equipo Eliminado',
-                                    text:  `"${nombre}" fue eliminado correctamente.`,
-                                    actions: [{ label: 'OK', style: 'primary green', action: null }]
+                            const hasProg = await checkBracketProgress();
+                            const doDelete = async () => {
+                                const res  = await fetch('../api/teams/delete.php', {
+                                    method:  'DELETE',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body:    JSON.stringify({ id })
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                    loadGroups();
+                                    showNotif({
+                                        type:  'success',
+                                        icon:  '🗑️',
+                                        title: 'Equipo Eliminado',
+                                        text:  `"${nombre}" fue eliminado correctamente.`,
+                                        actions: [{ label: 'OK', style: 'primary green', action: null }]
+                                    });
+                                } else {
+                                    showNotif({
+                                        type:  'error',
+                                        icon:  '❌',
+                                        title: 'Error',
+                                        text:  data.error || 'No se pudo eliminar el equipo.',
+                                        actions: [{ label: 'Cerrar', style: 'secondary', action: null }]
+                                    });
+                                }
+                            };
+                            if (hasProg) {
+                                showBracketWarning(async () => {
+                                    await resetBracketSilently();
+                                    await doDelete();
                                 });
                             } else {
-                                showNotif({
-                                    type:  'error',
-                                    icon:  '❌',
-                                    title: 'Error',
-                                    text:  data.error || 'No se pudo eliminar el equipo.',
-                                    actions: [{ label: 'Cerrar', style: 'secondary', action: null }]
-                                });
+                                await doDelete();
                             }
-                        }
+                        },
                     }
                 ]
             });
@@ -1040,6 +1170,30 @@ $icons = array_filter(scandir($icons_dir), function($f) {
         let draggedGroup   = null;
         let draggedSlot    = null;
 
+        // ── VERIFICACIÓN DE BRACKET ────────────────────────────────────
+        async function checkBracketProgress() {
+            const res  = await fetch('../api/bracket/has_progress.php');
+            const data = await res.json();
+            return data.has_progress;
+        }
+
+        function showBracketWarning(onConfirm) {
+            showNotif({
+                type:  'confirm',
+                icon:  '⚠️',
+                title: '¡Bracket en Progreso!',
+                text:  'Hay avances registrados en el bracket. Al realizar este cambio en los grupos, el bracket se reiniciará automáticamente. ¿Deseas continuar?',
+                actions: [
+                    { label: 'Cancelar', style: 'secondary', action: null },
+                    { label: 'Sí, Continuar', style: 'primary', action: onConfirm }
+                ]
+            });
+        }
+
+        async function resetBracketSilently() {
+            await fetch('../api/bracket/reset.php', { method: 'POST' });
+        }
+
         function setupSlotDragDrop() {
             // Slots con equipo — draggables
             document.querySelectorAll('.slot-row[draggable="true"]').forEach(row => {
@@ -1095,37 +1249,46 @@ $icons = array_filter(scandir($icons_dir), function($f) {
         }
 
         async function swapTeamSlots(teamIdA, groupA, slotA, teamIdB, groupB, slotB) {
-            try {
-                // Mover equipo A al slot/grupo destino
-                const resA = await fetch('../api/teams/move.php', {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ team_id: teamIdA, group_name: groupB, slot_number: slotB })
-                });
-                const dataA = await resA.json();
-                if (!dataA.success) throw new Error(dataA.error);
-
-                // Si había equipo en destino, moverlo al slot origen
-                if (teamIdB) {
-                    const resB = await fetch('../api/teams/move.php', {
+            const doSwap = async () => {
+                try {
+                    const resA = await fetch('../api/teams/move.php', {
                         method:  'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body:    JSON.stringify({ team_id: teamIdB, group_name: groupA, slot_number: slotA })
+                        body:    JSON.stringify({ team_id: teamIdA, group_name: groupB, slot_number: slotB })
                     });
-                    const dataB = await resB.json();
-                    if (!dataB.success) throw new Error(dataB.error);
+                    const dataA = await resA.json();
+                    if (!dataA.success) throw new Error(dataA.error);
+
+                    if (teamIdB) {
+                        const resB = await fetch('../api/teams/move.php', {
+                            method:  'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body:    JSON.stringify({ team_id: teamIdB, group_name: groupA, slot_number: slotA })
+                        });
+                        const dataB = await resB.json();
+                        if (!dataB.success) throw new Error(dataB.error);
+                    }
+
+                    loadGroups();
+                } catch(err) {
+                    showNotif({
+                        type:  'error',
+                        icon:  '❌',
+                        title: 'Error al mover equipo',
+                        text:  err.message || 'No se pudo completar el movimiento.',
+                        actions: [{ label: 'Cerrar', style: 'secondary', action: null }]
+                    });
                 }
+            };
 
-                loadGroups();
-
-            } catch(err) {
-                showNotif({
-                    type:  'error',
-                    icon:  '❌',
-                    title: 'Error al mover equipo',
-                    text:  err.message || 'No se pudo completar el movimiento.',
-                    actions: [{ label: 'Cerrar', style: 'secondary', action: null }]
+            const hasProg = await checkBracketProgress();
+            if (hasProg) {
+                showBracketWarning(async () => {
+                    await resetBracketSilently();
+                    await doSwap();
                 });
+            } else {
+                await doSwap();
             }
         }
 

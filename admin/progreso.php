@@ -273,17 +273,170 @@
         color: #ff4444;
     }
 
+    /* RASTRO VISUAL */
+    .b-slot.trail {
+        opacity: 0.45;
+        filter: grayscale(0.8);
+        cursor: default;
+        border-color: #333;
+        border-style: dashed;
+    }
+
+    .b-slot.trail .b-name {
+        color: #777;
+    }
+
+    /* BOTÓN REINICIAR */
+    .btn-reset-bracket {
+        background: rgba(230,0,18,0.1);
+        border: 1.5px solid rgba(230,0,18,0.3);
+        color: #ff4444;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-family: 'RacersMK', sans-serif;
+        font-size: 11px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 20px;
+    }
+
+    .btn-reset-bracket:hover {
+        background: rgba(230,0,18,0.2);
+        border-color: #e60012;
+    }
+
+    /* NOTIF OVERLAY — mismo estilo que grupos.php */
+    .notif-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        z-index: 300;
+        align-items: center;
+        justify-content: center;
+    }
+    .notif-overlay.open { display: flex; }
+
+    .notif-box {
+        background: #1e1e1e;
+        border-radius: 20px;
+        padding: 35px 40px;
+        max-width: 380px;
+        width: 100%;
+        text-align: center;
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .notif-box.confirm { border: 3px solid #e60012; }
+
+    .notif-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .notif-title {
+        font-size: 16px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #fff;
+        margin-bottom: 10px;
+    }
+
+    .notif-text {
+        font-size: 12px;
+        color: #888;
+        letter-spacing: 1px;
+        line-height: 1.8;
+        margin-bottom: 25px;
+    }
+
+    .notif-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .notif-btn {
+        padding: 12px 28px;
+        border-radius: 10px;
+        font-family: 'RacersMK', sans-serif;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+    .notif-btn.primary {
+        background: linear-gradient(135deg, #e60012, #8b0000);
+        color: #fff;
+    }
+    .notif-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,0,18,0.4); }
+    .notif-btn.secondary {
+        background: #2a2a2a;
+        color: #aaa;
+        border: 2px solid #444;
+    }
+    .notif-btn.secondary:hover { border-color: #fff; color: #fff; }
+
+    h2 {
+        font-size: 20px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #2a2a2a;
+    }
+
+    h2 span { color: #e60012; }
+
     @keyframes slideUpToast {
         from { opacity: 0; transform: translateY(20px); }
         to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* ── RESPONSIVE MÓVIL ── */
+    @media (max-width: 600px) {
+        body { padding: 15px 10px; }
+        h2 { font-size: 15px; letter-spacing: 1px; }
+        .stats-bar { flex-direction: column; gap: 10px; }
+        .stat-card { padding: 12px 15px; }
+        .stat-number { font-size: 22px; }
+        .clips-grid,
+        .admin-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .clip-info { flex-wrap: wrap; gap: 8px; }
+        .btn-delete-clip { width: 100%; text-align: center; }
+        .confirm-box { padding: 25px 18px; margin: 0 15px; }
+        .confirm-actions { flex-direction: column; }
+    }
 </style>
 
 <div class="bracket-section">
-    <h2 class="section-title">Admin — <span>Brackets</span></h2>
+    <h2>Admin — <span>Brackets</span></h2>
 
     <div class="info-banner">
-        💡 Los equipos registrados en Grupos aparecen automáticamente en su posición. Arrastra equipos de cualquier parte hacia un slot para avanzarlos en el bracket. Se guarda automáticamente al soltar.
+        💡 Los equipos aparecen automáticamente en su posición de grupo. Arrastra un equipo hacia un slot de la <strong>siguiente ronda de su rama</strong> para avanzarlo. El rastro de su recorrido quedará visible.
+    </div>
+
+    <button class="btn-reset-bracket" onclick="askResetBracket()">
+        🔄 Reiniciar Bracket
+    </button>
+
+    <div class="notif-overlay" id="confirmResetOverlay">
+        <div class="notif-box confirm">
+            <span class="notif-icon">🔄</span>
+            <div class="notif-title">¿Reiniciar Bracket?</div>
+            <div class="notif-text">Se borrará todo el progreso del bracket.<br>Los equipos volverán a sus posiciones iniciales de grupo.<br>Esta acción es permanente.</div>
+            <div class="notif-actions">
+                <button class="notif-btn secondary" onclick="closeResetConfirm()">Cancelar</button>
+                <button class="notif-btn primary" onclick="confirmResetBracket()">Sí, Reiniciar</button>
+            </div>
+        </div>
     </div>
 
     <div class="bracket-outer">
@@ -318,16 +471,19 @@
         'final-1','third-1'
     ];
 
+    let progressData = []; // historial de movimientos
+
     async function init() {
         const [teamsRes, bracketRes] = await Promise.all([
             fetch('../api/teams/get.php'),
             fetch('../api/bracket/get.php')
         ]);
         allTeams = await teamsRes.json();
-        const slots = await bracketRes.json();
+        const data = await bracketRes.json();
 
+        // Slots base
         bracketData = {};
-        slots.forEach(s => {
+        data.slots.forEach(s => {
             const key = s.round + '-' + s.slot_number;
             if (s.team_id) {
                 const team = allTeams.find(t => t.id == s.team_id);
@@ -335,18 +491,27 @@
             }
         });
 
+        // Progreso
+        progressData = data.progress || [];
+
         autoPlaceGroupTeams();
+        applyProgress();
         renderBracket();
-        
+    }
+
+    function applyProgress() {
+        // Aplicar cada movimiento del historial al bracketData
+        progressData.forEach(p => {
+            const team = allTeams.find(t => t.id == p.team_id);
+            if (team) bracketData[p.slot_key] = team;
+        });
     }
 
     function autoPlaceGroupTeams() {
         ['A','B','C','D'].forEach(g => {
-            const groupTeams = allTeams
-                .filter(t => t.group_name === g)
-                .sort((a, b) => a.slot_number - b.slot_number);
-            groupTeams.forEach((team, i) => {
-                const key = `group_${g}-${i + 1}`;
+            const groupTeams = allTeams.filter(t => t.group_name === g);
+            groupTeams.forEach(team => {
+                const key = `group_${g}-${team.slot_number}`;
                 if (!bracketData[key]) bracketData[key] = team;
             });
         });
@@ -460,27 +625,40 @@
         else if (isThird) cls += ' third-slot';
         else if (isSemi)  cls += ' semi';
 
-        if (team) cls += ' draggable';
-        else      cls += ' empty';
+        // ¿Este slot es parte del rastro de algún equipo?
+        const isTrail = progressData.some(p => p.slot_key === key) && !bracketData[key];
+
+        if (isTrail) {
+            cls += ' trail';
+        } else if (team) {
+            cls += ' draggable';
+        } else {
+            cls += ' empty';
+        }
 
         slot.className      = cls;
         slot.dataset.slotId = key;
 
-        if (group && team) {
+        // Determinar qué equipo mostrar en el rastro
+        const displayTeam = team || (isTrail
+            ? allTeams.find(t => t.id == progressData.find(p => p.slot_key === key)?.team_id)
+            : null);
+
+        if (group && displayTeam) {
             const badge = document.createElement('div');
             badge.className   = 'b-group-badge';
             badge.textContent = 'G' + group;
             slot.appendChild(badge);
         }
 
-        if (team) {
+        if (displayTeam) {
             const logo = document.createElement('div');
             logo.className = 'b-logo';
-            if (team.logo_path) logo.innerHTML = `<img src="../${team.logo_path}" alt="logo">`;
+            if (displayTeam.logo_path) logo.innerHTML = `<img src="../${displayTeam.logo_path}" alt="logo">`;
             slot.appendChild(logo);
             const name = document.createElement('div');
             name.className   = 'b-name';
-            name.textContent = team.name;
+            name.textContent = displayTeam.name;
             slot.appendChild(name);
         } else {
             const empty = document.createElement('div');
@@ -515,22 +693,76 @@
     }
 
 
+    // Mapa de movimientos permitidos por rama
+    const ALLOWED_MOVES = {
+        'group_A-1': ['group_A_winner-1'],
+        'group_A-2': ['group_A_winner-1'],
+        'group_A-3': ['group_A_winner-2'],
+        'group_A-4': ['group_A_winner-2'],
+        'group_C-1': ['group_C_winner-1'],
+        'group_C-2': ['group_C_winner-1'],
+        'group_C-3': ['group_C_winner-2'],
+        'group_C-4': ['group_C_winner-2'],
+        'group_B-1': ['group_B_winner-1'],
+        'group_B-2': ['group_B_winner-1'],
+        'group_B-3': ['group_B_winner-2'],
+        'group_B-4': ['group_B_winner-2'],
+        'group_D-1': ['group_D_winner-1'],
+        'group_D-2': ['group_D_winner-1'],
+        'group_D-3': ['group_D_winner-2'],
+        'group_D-4': ['group_D_winner-2'],
+        'group_A_winner-1': ['winner_A-1'],
+        'group_A_winner-2': ['winner_A-1'],
+        'group_C_winner-1': ['winner_C-1'],
+        'group_C_winner-2': ['winner_C-1'],
+        'group_B_winner-1': ['winner_B-1'],
+        'group_B_winner-2': ['winner_B-1'],
+        'group_D_winner-1': ['winner_D-1'],
+        'group_D_winner-2': ['winner_D-1'],
+        'winner_A-1': ['semi_left-1'],
+        'winner_C-1': ['semi_left-1'],
+        'winner_B-1': ['semi_right-1'],
+        'winner_D-1': ['semi_right-1'],
+        'semi_left-1':  ['final-1','third-1'],
+        'semi_right-1': ['final-1','third-1'],
+    };
+
+    function isValidMove(sourceKey, targetKey) {
+        const allowed = ALLOWED_MOVES[sourceKey] || [];
+        return allowed.includes(targetKey);
+    }
+
+    // Slots que son posiciones iniciales (no se pueden recibir drops)
+    const INITIAL_SLOTS = [
+        'group_A-1','group_A-2','group_A-3','group_A-4',
+        'group_B-1','group_B-2','group_B-3','group_B-4',
+        'group_C-1','group_C-2','group_C-3','group_C-4',
+        'group_D-1','group_D-2','group_D-3','group_D-4',
+    ];
+
     function setupDragDrop() {
         document.querySelectorAll('.b-slot').forEach(slot => {
-            if (slot.classList.contains('draggable')) {
+            const key = slot.dataset.slotId;
+
+            // Solo los slots con equipo y que NO sean rastro pueden arrastrarse
+            if (slot.classList.contains('draggable') && !slot.classList.contains('trail')) {
                 slot.draggable = true;
                 slot.addEventListener('dragstart', e => {
-                    draggedTeam = bracketData[slot.dataset.slotId];
-                    dragSource  = slot.dataset.slotId;
+                    draggedTeam = bracketData[key];
+                    dragSource  = key;
                     slot.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
                 });
                 slot.addEventListener('dragend', () => slot.classList.remove('dragging'));
             }
 
+            // Los slots iniciales no reciben drops
+            if (INITIAL_SLOTS.includes(key)) return;
+
             slot.addEventListener('dragover', e => {
-                e.preventDefault();
                 if (!draggedTeam) return;
+                if (!isValidMove(dragSource, key)) return;
+                e.preventDefault();
                 slot.classList.add('drag-over');
             });
 
@@ -540,50 +772,74 @@
                 e.preventDefault();
                 slot.classList.remove('drag-over');
                 if (!draggedTeam) return;
-
-                const targetKey  = slot.dataset.slotId;
-                const targetTeam = bracketData[targetKey] || null;
-
-                if (dragSource === targetKey) return;
-
-                if (dragSource && dragSource !== 'pool') {
-                    bracketData[targetKey] = draggedTeam;
-                    if (targetTeam) bracketData[dragSource] = targetTeam;
-                    else delete bracketData[dragSource];
-                } else {
-                    bracketData[targetKey] = draggedTeam;
+                if (!isValidMove(dragSource, key)) {
+                    showToast('❌ Movimiento no permitido en esta rama', 'error');
+                    draggedTeam = null;
+                    dragSource  = null;
+                    return;
+                }
+                if (bracketData[key]) {
+                    showToast('❌ Este slot ya tiene un equipo', 'error');
+                    draggedTeam = null;
+                    dragSource  = null;
+                    return;
                 }
 
+                // Registrar en progreso
+                progressData.push({ team_id: draggedTeam.id, slot_key: key });
+                bracketData[key] = draggedTeam;
+
+                const movedTeam = draggedTeam;
+                const movedFrom = dragSource;
                 draggedTeam = null;
                 dragSource  = null;
+
                 renderBracket();
-                
-                await saveBracket();
+                await saveProgress(movedTeam.id, key);
             });
         });
     }
 
-    async function saveBracket() {
-        const slots = SLOT_IDS.map(key => {
-            const parts = key.split('-');
-            const slot_number = parseInt(parts.pop());
-            const round       = parts.join('-');
-            return {
-                round,
-                slot_number,
-                team_id: bracketData[key] ? bracketData[key].id : null
-            };
-        });
-
+    async function saveProgress(teamId, slotKey) {
         try {
-            const res  = await fetch('../api/bracket/update.php', {
+            const res  = await fetch('../api/bracket/progress_update.php', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ slots })
+                body:    JSON.stringify({ team_id: teamId, slot_key: slotKey })
             });
             const data = await res.json();
-            if (data.success) showToast('✅ Bracket guardado', 'success');
+            if (data.success) showToast('✅ Progreso guardado', 'success');
             else              showToast('❌ Error al guardar', 'error');
+        } catch(e) {
+            showToast('❌ Error de conexión', 'error');
+        }
+    }
+
+    function askResetBracket() {
+        document.getElementById('confirmResetOverlay').classList.add('open');
+    }
+
+    function closeResetConfirm() {
+        document.getElementById('confirmResetOverlay').classList.remove('open');
+    }
+
+    async function confirmResetBracket() {
+        closeResetConfirm();
+        try {
+            const res  = await fetch('../api/bracket/reset.php', {
+                method: 'POST'
+            });
+            const data = await res.json();
+            if (data.success) {
+                progressData = [];
+                // Resetear bracketData a solo posiciones de grupo
+                bracketData  = {};
+                autoPlaceGroupTeams();
+                renderBracket();
+                showToast('✅ Bracket reiniciado', 'success');
+            } else {
+                showToast('❌ Error al reiniciar', 'error');
+            }
         } catch(e) {
             showToast('❌ Error de conexión', 'error');
         }
@@ -598,5 +854,9 @@
     }
 
     init();
+    window.askResetBracket     = askResetBracket;
+    window.closeResetConfirm   = closeResetConfirm;
+    window.confirmResetBracket = confirmResetBracket;
 })();
+
 </script>

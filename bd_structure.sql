@@ -47,6 +47,14 @@ CREATE TABLE bracket_slots (
     FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL
 );
 
+CREATE TABLE bracket_progress (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    team_id INT NOT NULL,
+    slot_key VARCHAR(50) NOT NULL,
+    moved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
+);
+
 -- Tabla de clips
 CREATE TABLE clips (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -56,16 +64,44 @@ CREATE TABLE clips (
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Insertar los 2 admins iniciales
--- Contraseña "admin123" hasheada (cámbiala después)
+-- Tabla de reacciones a clips
+CREATE TABLE clip_reactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    clip_id INT NOT NULL,
+    emoji VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (clip_id) REFERENCES clips(id) ON DELETE CASCADE
+);
+
+CREATE TABLE clip_reaction_order (
+    clip_id INT NOT NULL,
+    emoji VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    first_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (clip_id, emoji),
+    FOREIGN KEY (clip_id) REFERENCES clips(id) ON DELETE CASCADE
+);
+
+-- Tabla de comentarios de clips
+CREATE TABLE clip_comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    clip_id INT NOT NULL,
+    commenter_name VARCHAR(100) NOT NULL,
+    commenter_icon VARCHAR(255),
+    comment_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (clip_id) REFERENCES clips(id) ON DELETE CASCADE
+);
+
+-- Insertar los 3 admins iniciales
+-- Contraseñas hasheada
 INSERT INTO admins (username, password_hash) VALUES
 ('h3ar', '$2y$10$hPYtYp9gHk2I07JqCiAVoOlpBEpgGXwJd.aQBxrywd8hMH.yBBEm2'),
 ('pakorro', '$2y$10$dSE.dFfGTejNqBGpWwEI3ekg2Rr65KFu4GAoq3dEkA6OImG6..dgy'),
 ('duckman', '$2y$10$Z2Pg81/L71P4LjKg84u8tehhHEbljg3YtmGpyJs4PbfjORkRBkSbO');
 
-
--- Limpiar tabla actual
-TRUNCATE TABLE bracket_slots;
+-- Admin de prueba, admin - admin123
+INSERT INTO admins (username, password_hash) VALUES
+('admin', '$2y$10$LQynlM1iYv284RYmSMgz..oAknzbTcnzc2sc/oHB8ytpPDDrSbL9G');
 
 -- Insertar todos los slots del bracket
 INSERT INTO bracket_slots (round, slot_number, group_name, team_id) VALUES

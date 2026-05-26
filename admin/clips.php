@@ -301,9 +301,145 @@
             color: #ff4444;
         }
 
+        /* COMENTARIOS EN ADMIN */
+        .comments-admin-section {
+            border-top: 1px solid #2a2a2a;
+            padding: 12px 15px;
+        }
+
+        .comments-admin-toggle {
+            background: none;
+            border: none;
+            color: #555;
+            font-family: 'RacersMK', sans-serif;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .comments-admin-toggle:hover { color: #aaa; }
+
+        .comments-admin-body {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .comments-admin-body.open {
+            display: flex;
+        }
+
+        .comment-admin-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+
+        .comment-admin-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: #3a3a3a;
+            border: 1.5px solid #444;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .comment-admin-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-admin-avatar span { font-size: 7px; color: #555; }
+
+        .comment-admin-meta { flex: 1; min-width: 0; }
+
+        .comment-admin-author {
+            font-size: 10px;
+            color: #e60012;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .comment-admin-text {
+            font-size: 11px;
+            color: #ccc;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .comment-admin-date {
+            font-size: 9px;
+            color: #444;
+            margin-top: 3px;
+        }
+
+        .btn-delete-comment {
+            background: rgba(230,0,18,0.1);
+            border: 1.5px solid rgba(230,0,18,0.3);
+            color: #ff4444;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'RacersMK', sans-serif;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .btn-delete-comment:hover {
+            background: rgba(230,0,18,0.25);
+            border-color: #e60012;
+        }
+
+        .comments-admin-empty {
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 1px;
+            padding: 4px 0;
+        }
+
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
             to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── RESPONSIVE MÓVIL ── */
+        @media (max-width: 600px) {
+            body { padding: 15px 10px; }
+            h2 { font-size: 15px; letter-spacing: 1px; }
+            .stats-bar { flex-direction: column; gap: 10px; }
+            .stat-card { padding: 12px 15px; }
+            .stat-number { font-size: 22px; }
+            .clips-grid,
+            .admin-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .clip-info { flex-wrap: wrap; gap: 8px; }
+            .btn-delete-clip { width: 100%; text-align: center; }
+            .confirm-box { padding: 25px 18px; margin: 0 15px; }
+            .confirm-actions { flex-direction: column; }
         }
     </style>
 </head>
@@ -341,6 +477,18 @@
             <div class="confirm-actions">
                 <button class="btn-confirm-no"  onclick="closeConfirm()">Cancelar</button>
                 <button class="btn-confirm-yes" onclick="confirmDelete()">Sí, Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM MODAL COMENTARIO -->
+    <div class="confirm-overlay" id="confirmCommentOverlay">
+        <div class="confirm-box">
+            <h3>¿Eliminar Comentario?</h3>
+            <p>Esta acción es permanente.<br>El comentario se borrará y no podrá recuperarse.</p>
+            <div class="confirm-actions">
+                <button class="btn-confirm-no"  onclick="closeConfirmComment()">Cancelar</button>
+                <button class="btn-confirm-yes" onclick="confirmDeleteComment()">Sí, Eliminar</button>
             </div>
         </div>
     </div>
@@ -401,10 +549,32 @@
                                 Eliminar
                             </button>
                         </div>
+                        <div class="comments-admin-section">
+                            <button class="comments-admin-toggle"
+                                onclick="toggleAdminComments(${clip.id}, this)"
+                                data-count="0">
+                                💬 <span>Ver comentarios</span>
+                            </button>
+                            <div class="comments-admin-body" id="cadmin-body-${clip.id}"></div>
+                        </div>
                     </div>`;
             }).join('');
+            // Precargar conteo de comentarios
+            clips.forEach(clip => preloadAdminCommentCount(clip.id));
         }
 
+        async function preloadAdminCommentCount(clipId) {
+            const res      = await fetch('../api/clips/comments.php?clip_id=' + clipId);
+            const comments = await res.json();
+            const btn      = document.querySelector(`#clip-${clipId} .comments-admin-toggle`);
+            if (btn) {
+                btn.dataset.count = comments.length;
+                btn.querySelector('span').textContent = comments.length > 0
+                    ? `Ver comentarios (${comments.length})`
+                    : 'Ver comentarios';
+            }
+        }
+        
         // ── STATS ──────────────────────────────────────────────────
         function updateStats() {
             document.getElementById('statTotal').textContent = clips.length;
@@ -463,6 +633,105 @@
             toast.className   = 'toast ' + type;
             toast.style.display = 'block';
             setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        // ── COMENTARIOS ADMIN ──────────────────────────────────────────
+        let pendingDeleteComment = null;
+
+        async function toggleAdminComments(clipId, btn) {
+            const body   = document.getElementById('cadmin-body-' + clipId);
+            const label  = btn.querySelector('span');
+            const isOpen = body.classList.contains('open');
+
+            if (isOpen) {
+                body.classList.remove('open');
+                label.textContent = btn.dataset.count > 0
+                    ? `Ver comentarios (${btn.dataset.count})`
+                    : 'Ver comentarios';
+            } else {
+                body.classList.add('open');
+                label.textContent = 'Ocultar comentarios';
+                await loadAdminComments(clipId, btn);
+            }
+        }
+
+        async function loadAdminComments(clipId, toggleBtn) {
+            const body = document.getElementById('cadmin-body-' + clipId);
+            body.innerHTML = '<div class="comments-admin-empty">Cargando...</div>';
+
+            const res      = await fetch('../api/clips/comments.php?clip_id=' + clipId);
+            const comments = await res.json();
+
+            // Guardar conteo en el botón para usarlo al cerrar
+            if (toggleBtn) toggleBtn.dataset.count = comments.length;
+
+            if (!comments.length) {
+                body.innerHTML = '<div class="comments-admin-empty">Sin comentarios aún.</div>';
+                return;
+            }
+
+            body.innerHTML = comments.map(c => {
+                const avatar = c.commenter_icon
+                    ? `<img src="../${c.commenter_icon}" alt="avatar">`
+                    : '<span>?</span>';
+
+                const date = new Date(c.created_at).toLocaleDateString('es-MX', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+
+                return `
+                    <div class="comment-admin-item" id="cadmin-${c.id}">
+                        <div class="comment-admin-avatar">${avatar}</div>
+                        <div class="comment-admin-meta">
+                            <div class="comment-admin-author">${c.commenter_name}</div>
+                            <div class="comment-admin-text">${c.comment_text}</div>
+                            <div class="comment-admin-date">${date}</div>
+                        </div>
+                        <button class="btn-delete-comment"
+                            onclick="askDeleteComment(${c.id}, ${clipId})">
+                            Eliminar
+                        </button>
+                    </div>`;
+            }).join('');
+        }
+
+        function askDeleteComment(commentId, clipId) {
+            pendingDeleteComment = { commentId, clipId };
+            document.getElementById('confirmCommentOverlay').classList.add('open');
+        }
+
+        function closeConfirmComment() {
+            pendingDeleteComment = null;
+            document.getElementById('confirmCommentOverlay').classList.remove('open');
+        }
+
+        async function confirmDeleteComment() {
+            if (!pendingDeleteComment) return;
+            const { commentId, clipId } = pendingDeleteComment;
+            closeConfirmComment();
+
+            const item = document.getElementById('cadmin-' + commentId);
+            if (item) item.style.opacity = '0.4';
+
+            try {
+                const res  = await fetch('../api/clips/comments.php', {
+                    method:  'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ id: commentId })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    await loadAdminComments(clipId);
+                    showToast('Comentario eliminado', 'success');
+                } else {
+                    if (item) item.style.opacity = '1';
+                    showToast(data.error || 'Error al eliminar', 'error');
+                }
+            } catch(e) {
+                if (item) item.style.opacity = '1';
+                showToast('Error de conexión', 'error');
+            }
         }
 
         // Cerrar confirm al click fuera

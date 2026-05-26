@@ -1,6 +1,6 @@
 # Mario Kart World Tournament Website
 
-### Backup de la Versión Final — Pakorro x Duckman Tournament
+### Backup de la Versión Final v2.0 — Pakorro x Duckman Tournament
 
 Este repositorio contiene la versión limpia, optimizada y final del sitio web de gestión y visualización de torneos para **Mario Kart World**. Está completamente listo para ser desplegado en **Hostinger** o ejecutado en un entorno local (**XAMPP**).
 

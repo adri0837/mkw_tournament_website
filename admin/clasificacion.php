@@ -284,6 +284,65 @@
             from { opacity: 0; transform: scale(0.85) translateY(20px); }
             to   { opacity: 1; transform: scale(1) translateY(0); }
         }
+
+        /* ── RESPONSIVE MÓVIL ── */
+        @media (max-width: 600px) {
+            body { padding: 15px 10px; }
+            h2 { font-size: 15px; letter-spacing: 1px; margin-bottom: 15px; }
+            .info-banner { font-size: 11px; padding: 10px 12px; }
+
+            .table-wrapper {
+                padding: 12px 8px;
+                overflow-x: auto;
+            }
+            table {
+                min-width: 480px; /* fuerza scroll horizontal, los inputs no se aplastan */
+            }
+            th {
+                font-size: 9px;
+                padding: 8px 6px;
+                letter-spacing: 1px;
+            }
+            td {
+                padding: 8px 6px;
+            }
+            .stat-input {
+                width: 48px;
+                padding: 6px 4px;
+                font-size: 11px;
+            }
+            .points-input {
+                width: 52px;
+                font-size: 13px;
+            }
+            .team-logo {
+                width: 28px;
+                height: 28px;
+            }
+            .team-name {
+                font-size: 11px;
+            }
+            .global-actions {
+                justify-content: center;
+                margin-top: 15px;
+            }
+            .btn-save-all {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 12px;
+            }
+            .notif-box {
+                padding: 25px 18px;
+                margin: 0 15px;
+            }
+            .notif-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .notif-btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>

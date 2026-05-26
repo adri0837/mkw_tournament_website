@@ -16,6 +16,7 @@ $active = isset($_GET['section']) && in_array($_GET['section'], $sections)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin | MK Tournament</title>
+    <link rel="icon" type="image/png" href="../assets/icons-random/admin.png">
     <style>
         @font-face {
             font-family: 'RacersMK';
@@ -290,6 +291,67 @@ $active = isset($_GET['section']) && in_array($_GET['section'], $sections)
             border: 2px solid #444;
         }
         .notif-btn.secondary:hover { border-color: #fff; color: #fff; }
+
+        /* ── RESPONSIVE ADMIN (MÓVIL) ── */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+            padding: 5px;
+        }
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 12px 15px;
+            }
+            .header-left h1 {
+                font-size: 13px;
+                letter-spacing: 1px;
+            }
+            .admin-badge {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 240px;
+                z-index: 50;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.6);
+                z-index: 40;
+            }
+            .sidebar-overlay.open {
+                display: block;
+            }
+            .admin-main {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+            iframe {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -301,6 +363,13 @@ $active = isset($_GET['section']) && in_array($_GET['section'], $sections)
             <h1>Panel de Administración</h1>
         </div>
         <div class="header-right">
+            
+            <button class="hamburger" onclick="toggleSidebar()" id="hamburgerBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+            </button>
+
             <span class="admin-badge">👤 <?= htmlspecialchars($_SESSION['admin_user']) ?></span>
             <a href="#" class="btn-logout" onclick="doLogout()">
                 Cerrar Sesión
@@ -310,7 +379,7 @@ $active = isset($_GET['section']) && in_array($_GET['section'], $sections)
 
     <!-- BODY -->
     <div class="admin-body">
-
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <p class="sidebar-label">Secciones</p>
@@ -383,6 +452,11 @@ $active = isset($_GET['section']) && in_array($_GET['section'], $sections)
             closeNotif();
             await fetch('../api/auth/logout.php', { method: 'POST' });
             window.location.href = 'login.html';
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
         }
     </script>
     <!-- NOTIFICACION LOGOUT -->

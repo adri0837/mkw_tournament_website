@@ -1,4 +1,5 @@
 <?php
+// Configuración local a la BD de mysql local de XAMPP/ cambiar a la de hostinger cuando se necesite
 $host     = 'localhost';
 $dbname   = 'mkw_tournament';
 $user     = 'root';
