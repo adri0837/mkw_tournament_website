@@ -65,8 +65,3 @@ const date = new Date(clip.uploaded_at + ' UTC').toLocaleString('es-MX', {
     hour12: true
 });
 ```
-$user     = 'u265448812_mkw_bdadmin'; // Cambiar de root a u265448812_mkw_bdadmin
-$password = 'hearmeMkw162_210'; // Cambiar a la contraseña del usuario en Hostinger
-```
-
----
