@@ -65,22 +65,6 @@ const date = new Date(clip.uploaded_at + ' UTC').toLocaleString('es-MX', {
     hour12: true
 });
 ```
-
----
-
-## Credenciales de Administrador Iniciales
-El archivo SQL adjunto crea automáticamente tres administradores con sus respectivas contraseñas (hasheada):
-1. **h3ar** - **mkworldh3ar_racer**
-2. **pakorro** - **mkworldpakorro_racer**
-3. **duckman** - **mkworldduckman_racer**
-
----
-
-## Modificación de archivo config/db.php
-```php
-<?php
-$host     = '127.0.0.1'; // Cambiar de localhost a [IP_ADDRESS]
-$dbname   = 'u265448812_mkw_tournament';
 $user     = 'u265448812_mkw_bdadmin'; // Cambiar de root a u265448812_mkw_bdadmin
 $password = 'hearmeMkw162_210'; // Cambiar a la contraseña del usuario en Hostinger
 ```
